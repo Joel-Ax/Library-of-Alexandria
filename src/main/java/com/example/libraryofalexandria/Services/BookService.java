@@ -11,18 +11,27 @@ public class BookService {
 
     private BookRepository bookRepository;
 
-    public BookService(BookRepository bookRepository) {this.bookRepository = bookRepository;}
+    public BookService(BookRepository bookRepository) {
+        this.bookRepository = bookRepository;
+    }
 
-    public List<Book> getAllBooks() { return bookRepository.findAll(); }
+    public List<Book> getAllBooks() {
+        return bookRepository.findAll();
+    }
 
-    public Book getBookByTitle(String title) {return bookRepository.findByTitle(title);}
+    public Book getBookByTitle(String title) {
+        return bookRepository.findByTitle(title);
+    }
 
-    public Book getBookByAuthor(String author) {return bookRepository.findByAuthor(author);}
+    /*public List<Book> getBooksByAuthor(String name) {
+        return bookRepository.findAuthorByName(name);
+    }*/
 
     public Book createBook(Book book) {
         return bookRepository.save(book);}
 
     public Book updateBook(Book book) {
+
         return bookRepository.save(book);
     }
 

@@ -31,11 +31,11 @@ public class BookController {
         return ResponseEntity.ok(book);
     }
 
-    @GetMapping("/{author}")
-    public ResponseEntity<Book> getBookByAuthor(@PathVariable String author) {
-        Book book = bookService.getBookByAuthor(author);
-        return ResponseEntity.ok(book);
-    }
+    /*@GetMapping("/{author}")
+    public ResponseEntity<List<Book>> getBooksByAuthor(@PathVariable String author) {
+        List<Book> books = bookService.getBooksByAuthor(author);
+        return new ResponseEntity<>(books, HttpStatus.OK);
+    }*/
 
     @PostMapping
     public ResponseEntity<Book> createBook(@RequestBody Book book) {
