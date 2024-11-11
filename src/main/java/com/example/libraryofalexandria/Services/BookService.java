@@ -28,10 +28,10 @@ public class BookService {
     }*/
 
     public Book createBook(Book book) {
-        return bookRepository.save(book);}
+        return bookRepository.save(book);
+    }
 
     public Book updateBook(Book book) {
-
         return bookRepository.save(book);
     }
 

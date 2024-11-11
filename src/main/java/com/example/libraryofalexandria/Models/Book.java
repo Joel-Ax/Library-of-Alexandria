@@ -22,7 +22,7 @@ public class Book {
     private String title;
 
     @Column(name = "publication_year", nullable = false)
-    private int year;
+    private int publication_year;
 
     @ManyToOne
     @JoinColumn(name = "author_id", nullable = false)

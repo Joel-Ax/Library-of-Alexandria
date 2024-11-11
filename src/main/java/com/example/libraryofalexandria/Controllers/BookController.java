@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/books")
+@RequestMapping("/api/books")
 public class BookController {
 
     private final BookService bookService;
@@ -31,19 +31,23 @@ public class BookController {
         return ResponseEntity.ok(book);
     }
 
-    /*@GetMapping("/{author}")
-    public ResponseEntity<List<Book>> getBooksByAuthor(@PathVariable String author) {
-        List<Book> books = bookService.getBooksByAuthor(author);
-        return new ResponseEntity<>(books, HttpStatus.OK);
-    }*/
-
     @PostMapping
     public ResponseEntity<Book> createBook(@RequestBody Book book) {
-        Book createdBook = bookService.createBook(book);
-        return new ResponseEntity<>(createdBook, HttpStatus.CREATED);
+        // Säkerställ att inget ID skickas med
+        if (book.getId() != null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            // Eller mer informativt:
+            // throw new IllegalArgumentException("New book should not include ID");
+        }
+        try {
+            Book savedBook = bookService.createBook(book);
+            return new ResponseEntity<>(savedBook, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
-    @PutMapping
+    @PutMapping("/{id}")
     public ResponseEntity<Book> updateBook(@RequestBody Book book) {
         Book updateBook = bookService.updateBook(book);
         return new ResponseEntity<>(updateBook, HttpStatus.OK);
@@ -55,7 +59,3 @@ public class BookController {
         return new ResponseEntity<>(deletedBook, HttpStatus.OK);
     }
 }
-
-
-
-
