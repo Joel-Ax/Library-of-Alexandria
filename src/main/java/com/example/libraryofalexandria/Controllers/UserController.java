@@ -30,7 +30,6 @@ public class UserController {
     return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
   }
 
-
   @GetMapping("/{id}")
   public ResponseEntity<User> getUserById(@PathVariable Long id) {
     try {
@@ -41,9 +40,24 @@ public class UserController {
     }
   }
 
- /* @GetMapping("/{id}")
-  public ResponseEntity<User> getUserById(@PathVariable Long id){
-    User user = userService.getUserById(id);
-    return ResponseEntity.ok(user);
-  }*/
+  @PutMapping("/{id}")
+  public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
+    try {
+      User updatedUser = userService.updateUser(id, user);
+      return ResponseEntity.ok(updatedUser);
+    } catch (RuntimeException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+  }
+
+  @DeleteMapping("/{id}")
+  public ResponseEntity<User> deleteUser(@PathVariable Long id){
+    try {
+      userService.deleteUser(id);
+      return ResponseEntity.noContent().build();
+    } catch (RuntimeException e ) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+  }
+
 }
