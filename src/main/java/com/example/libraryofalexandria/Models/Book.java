@@ -31,4 +31,5 @@ public class Book {
     @Column(name = "available", columnDefinition = "tinyInt(1) default 1")
     private Boolean available;
 
+
 }
