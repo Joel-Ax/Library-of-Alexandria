@@ -25,4 +25,13 @@ public class AdminService {
     public Admin createAdmin(Admin admin) {
         return adminRepository.save(admin);
     }
+
+    // Radera admin
+    public Admin deleteAdmin(Long id) {
+        Admin adminToDelete = adminRepository.findById(id).orElse(null);
+        if (adminToDelete != null) {
+            adminRepository.delete(adminToDelete);
+        }
+        return adminToDelete;
+    }
 }

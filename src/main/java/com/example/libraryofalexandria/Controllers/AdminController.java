@@ -33,6 +33,12 @@ public class AdminController {
         return new ResponseEntity<>(createdAdmin, HttpStatus.CREATED);
     }
 
+    // Radera en administratör
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Admin> deleteAdmin(@PathVariable Long id) {
+        Admin deletedAdmin = adminService.deleteAdmin(id);
+        return new ResponseEntity<>(deletedAdmin, HttpStatus.OK);
+    }
     
 
 }
