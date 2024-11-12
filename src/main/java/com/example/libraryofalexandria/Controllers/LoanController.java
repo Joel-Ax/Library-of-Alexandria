@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.example.libraryofalexandria.Services.BookService;
 import com.example.libraryofalexandria.Services.UserService;
+
+import java.util.HashMap;
 import java.util.Map;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -77,12 +79,34 @@ public class LoanController {
 
         // Extract books from the active loans (only books that are not returned)
         List<Book> borrowedBooks = activeLoans.stream()
-                .filter(loan -> Boolean.FALSE.equals(loan.getReturned()))
-// Filter out books that have been returned
+                .filter(loan -> Boolean.FALSE.equals(loan.getReturned()))// Filter out books that have been returned
                 .map(Loan::getBook) // Get the book from the loan
                 .collect(Collectors.toList()); // Collect into a list of books
 
-        // Return the list of borrowed books
+
         return ResponseEntity.ok(borrowedBooks);
     }
+
+    @GetMapping("/onLoan/{id}/dueDates")
+    public ResponseEntity<List<Map<String, Object>>> getActiveBorrowedBooksSummary(@PathVariable Long id) {
+        // Get the user by ID
+        User user = userService.getUserById(id);
+
+        // Retrieve all active loans for the user (where the book is not yet returned)
+        List<Loan> activeLoans = loanService.getActiveLoans(user);
+
+        // Extract title and dueDate from active loans
+        List<Map<String, Object>> borrowedBooksSummary = activeLoans.stream()
+                .filter(loan -> Boolean.FALSE.equals(loan.getReturned())) // Only active loans (not returned)
+                .map(loan -> {
+                    Map<String, Object> summary = new HashMap<>();
+                    summary.put("title", loan.getBook().getTitle()); // Get the book title
+                    summary.put("dueDate", loan.getDueDate()); // Get the due date
+                    return summary;
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(borrowedBooksSummary);
+    }
+
 }
