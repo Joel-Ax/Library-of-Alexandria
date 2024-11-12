@@ -12,9 +12,9 @@ import com.example.libraryofalexandria.Services.UserService;
 import java.util.Map;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-
-
 import java.util.List;
+import java.util.stream.Collectors;
+
 
 @RestController
 @RequestMapping("/api/loans")
@@ -31,7 +31,7 @@ public class LoanController {
     }
 
     @PostMapping("/borrow")
-    public ResponseEntity<Loan> borrowBook(@RequestBody Map<String, Object> body) {
+    public ResponseEntity<?> borrowBook(@RequestBody Map<String, Object> body) {
         // Extract bookTitle and userId directly from the request body
         String bookTitle = (String) body.get("bookTitle");
         Long userId = ((Number) body.get("userId")).longValue();
@@ -40,18 +40,23 @@ public class LoanController {
         Book book = bookService.getBookByTitle(bookTitle);
         User user = userService.getUserById(userId);
 
-        LocalDate loanDate = LocalDate.now();
-        LocalDate dueDate = loanDate.plus(14, ChronoUnit.DAYS);
+        try {
+            // Try borrowing the book
+            Loan loan = loanService.borrowBook(book, user);
 
-        // Borrow the book and create the loan
-        Loan loan = loanService.borrowBook(book, user);
-        loan.setBook(book);
-        loan.setUser(user);
-        loan.setLoanDate(loanDate);
-        loan.setDueDate(dueDate);
+            // Set the loan date and due date
+            LocalDate loanDate = LocalDate.now();
+            LocalDate dueDate = loanDate.plus(14, ChronoUnit.DAYS);
+            loan.setLoanDate(loanDate);
+            loan.setDueDate(dueDate);
 
-        // Return the created loan object with a CREATED status
-        return new ResponseEntity<>(loan, HttpStatus.CREATED);
+            // Return the created loan object with a CREATED status
+            return new ResponseEntity<>(loan, HttpStatus.CREATED);
+        } catch (RuntimeException ex) {
+            // If the book is already borrowed, return a 400 with the error message
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("The book is already borrowed");
+        }
     }
 
 
@@ -62,10 +67,22 @@ public class LoanController {
         return new ResponseEntity<>(loan, HttpStatus.OK);
     }
 
-    @GetMapping("/active")
-    public ResponseEntity<List<Loan>> getActiveLoans(@RequestParam Long userId) {
-        User user = userService.getUserById(userId);
-        List<Loan> loans = loanService.getActiveLoans(user);
-        return ResponseEntity.ok(loans);
+    @GetMapping("/onLoan/{id}")
+    public ResponseEntity<List<Book>> getActiveBorrowedBooks(@PathVariable Long id) {
+        // Get the user by ID
+        User user = userService.getUserById(id);
+
+        // Retrieve all active loans for the user (where the book is not yet returned)
+        List<Loan> activeLoans = loanService.getActiveLoans(user);
+
+        // Extract books from the active loans (only books that are not returned)
+        List<Book> borrowedBooks = activeLoans.stream()
+                .filter(loan -> Boolean.FALSE.equals(loan.getReturned()))
+// Filter out books that have been returned
+                .map(Loan::getBook) // Get the book from the loan
+                .collect(Collectors.toList()); // Collect into a list of books
+
+        // Return the list of borrowed books
+        return ResponseEntity.ok(borrowedBooks);
     }
 }
