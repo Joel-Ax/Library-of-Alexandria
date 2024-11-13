@@ -1,14 +1,14 @@
 -- Create tables if they don't exist
 CREATE TABLE IF NOT EXISTS authors (
-                                       author_id BIGINT PRIMARY KEY AUTO_INCREMENT,
-                                       first_name VARCHAR(100) NOT NULL,
+    author_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     birth_date DATE
     );
 
 CREATE TABLE IF NOT EXISTS books (
-                                     book_id BIGINT PRIMARY KEY AUTO_INCREMENT,
-                                     title VARCHAR(255) NOT NULL,
+    book_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL,
     publication_year INT,
     author_id BIGINT,
     available BOOLEAN DEFAULT TRUE,
@@ -16,40 +16,40 @@ CREATE TABLE IF NOT EXISTS books (
     );
 
 CREATE TABLE IF NOT EXISTS genres (
-                                      genre_id BIGINT PRIMARY KEY AUTO_INCREMENT,
-                                      name VARCHAR(50) NOT NULL UNIQUE
+    genre_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL UNIQUE
     );
 
 CREATE TABLE IF NOT EXISTS books_genres (
-                                            book_id BIGINT,
-                                            genre_id BIGINT,
-                                            PRIMARY KEY (book_id, genre_id),
+    book_id BIGINT,
+    genre_id BIGINT,
+    PRIMARY KEY (book_id, genre_id),
     FOREIGN KEY (book_id) REFERENCES books(book_id),
     FOREIGN KEY (genre_id) REFERENCES genres(genre_id)
     );
 
 CREATE TABLE IF NOT EXISTS users (
-                                     user_id BIGINT PRIMARY KEY AUTO_INCREMENT,
-                                     first_name VARCHAR(100) NOT NULL,
+    user_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     member_number VARCHAR(10) NOT NULL UNIQUE
     );
 
 CREATE TABLE IF NOT EXISTS loans (
-                                     loan_id BIGINT PRIMARY KEY AUTO_INCREMENT,
-                                     book_id BIGINT,
-                                     user_id BIGINT,
-                                     loan_date DATE NOT NULL,
-                                     due_date DATE NOT NULL,
-                                     returned_date DATE,
-                                     FOREIGN KEY (book_id) REFERENCES books(book_id),
+    loan_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    book_id BIGINT,
+    user_id BIGINT,
+    loan_date DATE NOT NULL,
+    due_date DATE NOT NULL,
+    returned_date DATE,
+    FOREIGN KEY (book_id) REFERENCES books(book_id),
     FOREIGN KEY (user_id) REFERENCES users(user_id)
     );
 
 CREATE TABLE IF NOT EXISTS admins (
-                                      admin_id BIGINT PRIMARY KEY AUTO_INCREMENT,
-                                      username VARCHAR(50) NOT NULL UNIQUE,
+    admin_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(50) NOT NULL,
     role VARCHAR(20) NOT NULL
     );
