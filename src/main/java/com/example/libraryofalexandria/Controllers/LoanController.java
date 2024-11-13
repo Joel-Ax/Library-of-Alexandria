@@ -11,6 +11,7 @@ import com.example.libraryofalexandria.Services.BookService;
 import com.example.libraryofalexandria.Services.UserService;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -34,32 +35,37 @@ public class LoanController {
 
     @PostMapping("/borrow")
     public ResponseEntity<?> borrowBook(@RequestBody Map<String, Object> body) {
-        // Extract bookTitle and userId directly from the request body
         String bookTitle = (String) body.get("bookTitle");
         Long userId = ((Number) body.get("userId")).longValue();
 
-        // Get the book and user objects from the services
         Book book = bookService.getBookByTitle(bookTitle);
         User user = userService.getUserById(userId);
 
         try {
-            // Try borrowing the book
             Loan loan = loanService.borrowBook(book, user);
 
-            // Set the loan date and due date
             LocalDate loanDate = LocalDate.now();
             LocalDate dueDate = loanDate.plus(14, ChronoUnit.DAYS);
             loan.setLoanDate(loanDate);
             loan.setDueDate(dueDate);
 
-            // Return the created loan object with a CREATED status
-            return new ResponseEntity<>(loan, HttpStatus.CREATED);
+            // Use LinkedHashMap to ensure order
+            Map<String, Object> response = new LinkedHashMap<>();
+            response.put("title", book.getTitle());
+            response.put("bookId", book.getId());
+            response.put("loanDate", loanDate);
+            response.put("dueDate", dueDate);
+            response.put("firstName", user.getFirstName());
+            response.put("lastName", user.getLastName());
+
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (RuntimeException ex) {
-            // If the book is already borrowed, return a 400 with the error message
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("The book is already borrowed");
         }
     }
+
+
 
 
 
