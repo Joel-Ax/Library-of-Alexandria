@@ -49,7 +49,7 @@ public class LoanController {
             loan.setLoanDate(loanDate);
             loan.setDueDate(dueDate);
 
-            // Use LinkedHashMap to ensure order
+            // LinkedHashMap skriver ut i rätt ordning
             Map<String, Object> response = new LinkedHashMap<>();
             response.put("title", book.getTitle());
             response.put("bookId", book.getId());
@@ -70,23 +70,20 @@ public class LoanController {
         String bookTitle = (String) body.get("bookTitle");
         Long userId = ((Number) body.get("userId")).longValue();
 
-        // Retrieve the book and user
         Book book = bookService.getBookByTitle(bookTitle);
         User user = userService.getUserById(userId);
 
         try {
-            // Find the active loan for this user and book
+            // Filtrerar fram aktiva lån
             Loan activeLoan = loanService.getActiveLoans(user).stream()
                     .filter(loan -> loan.getBook().equals(book) && !loan.getReturned())
                     .findFirst()
                     .orElse(null);
 
-            // Use the existing LoanService.returnBook method with the loan ID
             Loan updatedLoan = loanService.returnBook(activeLoan.getId());
 
-            // Mark the book as available again
             book.setAvailable(true);
-            bookService.updateBook(book); // Ensure that the book's status is saved in the database
+            bookService.updateBook(book);
 
             return new ResponseEntity<>("Book returned successfully", HttpStatus.OK);
 
@@ -99,17 +96,15 @@ public class LoanController {
 
     @GetMapping("/onLoan/{id}")
     public ResponseEntity<List<Book>> getActiveBorrowedBooks(@PathVariable Long id) {
-        // Get the user by ID
         User user = userService.getUserById(id);
 
-        // Retrieve all active loans for the user (where the book is not yet returned)
         List<Loan> activeLoans = loanService.getActiveLoans(user);
 
-        // Extract books from the active loans (only books that are not returned)
+        // Filtrerar fram böcker från aktiv lån
         List<Book> borrowedBooks = activeLoans.stream()
-                .filter(loan -> Boolean.FALSE.equals(loan.getReturned()))// Filter out books that have been returned
-                .map(Loan::getBook) // Get the book from the loan
-                .collect(Collectors.toList()); // Collect into a list of books
+                .filter(loan -> Boolean.FALSE.equals(loan.getReturned()))
+                .map(Loan::getBook)
+                .collect(Collectors.toList());
 
 
         return ResponseEntity.ok(borrowedBooks);
@@ -117,19 +112,17 @@ public class LoanController {
 
     @GetMapping("/onLoan/{id}/dueDates")
     public ResponseEntity<List<Map<String, Object>>> getActiveBorrowedBooksSummary(@PathVariable Long id) {
-        // Get the user by ID
         User user = userService.getUserById(id);
 
-        // Retrieve all active loans for the user (where the book is not yet returned)
         List<Loan> activeLoans = loanService.getActiveLoans(user);
 
-        // Extract title and dueDate from active loans
+        // Filtrera fram titel och dueDate
         List<Map<String, Object>> borrowedBooksSummary = activeLoans.stream()
-                .filter(loan -> Boolean.FALSE.equals(loan.getReturned())) // Only active loans (not returned)
+                .filter(loan -> Boolean.FALSE.equals(loan.getReturned()))
                 .map(loan -> {
                     Map<String, Object> summary = new HashMap<>();
-                    summary.put("title", loan.getBook().getTitle()); // Get the book title
-                    summary.put("dueDate", loan.getDueDate()); // Get the due date
+                    summary.put("title", loan.getBook().getTitle());
+                    summary.put("dueDate", loan.getDueDate());
                     return summary;
                 })
                 .collect(Collectors.toList());
