@@ -25,10 +25,16 @@ public class BookController {
         return new ResponseEntity<>(books, HttpStatus.OK);
     }
 
-    @GetMapping("/{title}")
+    @GetMapping("/title/{title}")
     public ResponseEntity<Book> getBookByTitle(@PathVariable String title) {
         Book book = bookService.getBookByTitle(title);
         return ResponseEntity.ok(book);
+    }
+
+    @GetMapping("/genre/{genre}")
+    public ResponseEntity<List<Book>> getBookByGenre(@PathVariable String genre) {
+        List<Book> books = bookService.getBooksByGenre(genre);
+        return new ResponseEntity<>(books, HttpStatus.OK);
     }
 
     @PostMapping
@@ -41,7 +47,7 @@ public class BookController {
         }
         try {
             Book savedBook = bookService.createBook(book);
-            return new ResponseEntity<>(savedBook, HttpStatus.CREATED);
+            return new ResponseEntity<>(HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -57,5 +63,11 @@ public class BookController {
     public ResponseEntity<Book> deleteBook(@RequestBody Book book) {
         Book deletedBook = bookService.deleteBook(book);
         return new ResponseEntity<>(deletedBook, HttpStatus.OK);
+    }
+
+    @GetMapping("/noGenres")
+    public ResponseEntity<List<Book>> getBooksWithNoGenres() {
+        List<Book> books = bookService.getBooksWithNoGenre();
+        return new ResponseEntity<>(books, HttpStatus.OK);
     }
 }
