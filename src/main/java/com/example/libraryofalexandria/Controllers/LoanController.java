@@ -45,7 +45,7 @@ public class LoanController {
             Loan loan = loanService.borrowBook(book, user);
 
             LocalDate loanDate = LocalDate.now();
-            LocalDate dueDate = loanDate.plus(14, ChronoUnit.DAYS);
+            LocalDate dueDate = loanDate.plusDays(30);
             loan.setLoanDate(loanDate);
             loan.setDueDate(dueDate);
 
@@ -65,15 +65,37 @@ public class LoanController {
         }
     }
 
-
-
-
-
     @PostMapping("/return")
-    public ResponseEntity<Loan> returnBook(@RequestParam Long loanId) {
-        Loan loan = loanService.returnBook(loanId);
-        return new ResponseEntity<>(loan, HttpStatus.OK);
+    public ResponseEntity<?> returnBook(@RequestBody Map<String, Object> body) {
+        String bookTitle = (String) body.get("bookTitle");
+        Long userId = ((Number) body.get("userId")).longValue();
+
+        // Retrieve the book and user
+        Book book = bookService.getBookByTitle(bookTitle);
+        User user = userService.getUserById(userId);
+
+        try {
+            // Find the active loan for this user and book
+            Loan activeLoan = loanService.getActiveLoans(user).stream()
+                    .filter(loan -> loan.getBook().equals(book) && !loan.getReturned())
+                    .findFirst()
+                    .orElse(null);
+
+            // Use the existing LoanService.returnBook method with the loan ID
+            Loan updatedLoan = loanService.returnBook(activeLoan.getId());
+
+            // Mark the book as available again
+            book.setAvailable(true);
+            bookService.updateBook(book); // Ensure that the book's status is saved in the database
+
+            return new ResponseEntity<>("Book returned successfully", HttpStatus.OK);
+
+        } catch (RuntimeException ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while returning the book");
+        }
     }
+
 
     @GetMapping("/onLoan/{id}")
     public ResponseEntity<List<Book>> getActiveBorrowedBooks(@PathVariable Long id) {
