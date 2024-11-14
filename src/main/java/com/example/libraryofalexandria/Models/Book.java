@@ -1,15 +1,13 @@
 package com.example.libraryofalexandria.Models;
 
-
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Table(name = "books")
 public class Book {
 
@@ -28,8 +26,28 @@ public class Book {
     @JoinColumn(name = "author_id", nullable = false)
     private Author author;
 
-    @Column(name = "available", columnDefinition = "tinyInt(1) default 1")
+    @Column(name = "available", columnDefinition = "TINYINT default 1")
     private Boolean available;
 
+
+    @ManyToMany
+    @JoinTable(name = "books_genres",
+            joinColumns = @JoinColumn(name = "book_id", foreignKey = @ForeignKey(name = "fk_books_genres_book")),
+            inverseJoinColumns = @JoinColumn(name = "genre_id", foreignKey = @ForeignKey(name = "fk_books_genres_genre")))
+    private Set<Genre> genres = new HashSet<>();
+
+
+    public boolean hasGenre(String genreName) {
+        for (Genre genre : genres) {
+            if (genre.getName().equalsIgnoreCase(genreName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /*public boolean hasNoGenre(Book book) {
+        return book.getGenres() == null || book.getGenres().isEmpty();
+    }*/
 
 }
