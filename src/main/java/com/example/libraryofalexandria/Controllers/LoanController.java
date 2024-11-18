@@ -6,6 +6,7 @@ import com.example.libraryofalexandria.Models.User;
 import com.example.libraryofalexandria.Services.LoanService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.example.libraryofalexandria.Services.BookService;
 import com.example.libraryofalexandria.Services.UserService;
@@ -33,6 +34,7 @@ public class LoanController {
         this.userService = userService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/borrow")
     public ResponseEntity<?> borrowBook(@RequestBody Map<String, Object> body) {
         String bookTitle = (String) body.get("bookTitle");
@@ -65,6 +67,7 @@ public class LoanController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/return")
     public ResponseEntity<?> returnBook(@RequestBody Map<String, Object> body) {
         String bookTitle = (String) body.get("bookTitle");
@@ -110,6 +113,7 @@ public class LoanController {
         return ResponseEntity.ok(borrowedBooks);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/onLoan/{id}/dueDates")
     public ResponseEntity<List<Map<String, Object>>> getActiveBorrowedBooksSummary(@PathVariable Long id) {
         User user = userService.getUserById(id);
