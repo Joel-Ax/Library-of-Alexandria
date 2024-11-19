@@ -9,7 +9,8 @@ import java.util.List;
 
 @Repository
 public interface LoanRepository extends JpaRepository<Loan, Long> {
-
-    List<Loan> findByUser(User user);
-
+    List<Loan> findByUserAndReturnedDateIsNull(User user);  // Fetch loans where returned is NULL (not returned)
 }
+
+
+

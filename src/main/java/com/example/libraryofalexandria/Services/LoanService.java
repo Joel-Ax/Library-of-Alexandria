@@ -26,13 +26,21 @@ public class LoanService {
         Loan loan = new Loan();
         loan.setBook(book);
         loan.setUser(user);
-        loan.setDueDate(LocalDate.now());
-        loan.setReturned(false);
+        loan.setLoanDate(LocalDate.now());
+        loan.setDueDate(LocalDate.now().plusDays(30)); // Set due date
+        loan.setReturned(false); // Ensure it's not returned
 
-        book.setAvailable(false);
-        return loanRepository.save(loan);
+        // Save the loan and ensure the transaction is flushed
+        loanRepository.save(loan);
+        loanRepository.flush();  // Forces the loan to be saved immediately
+
+        book.setAvailable(false); // Mark the book as not available
+        return loan;
     }
 
+    public List<Loan> getActiveLoans(User user) {
+        return loanRepository.findByUserAndReturnedDateIsNull(user);
+    }
 
     public Loan returnBook(Long loanId) {
         Loan loan = loanRepository.findById(loanId)
@@ -43,8 +51,6 @@ public class LoanService {
 
         return loanRepository.save(loan);
     }
-
-    public List<Loan> getActiveLoans(User user) {
-        return loanRepository.findByUser(user);
-    }
 }
+
+
