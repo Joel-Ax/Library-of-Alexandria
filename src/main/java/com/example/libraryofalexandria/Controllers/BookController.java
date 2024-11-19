@@ -4,6 +4,7 @@ import com.example.libraryofalexandria.Models.Book;
 import com.example.libraryofalexandria.Services.BookService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,6 +38,7 @@ public class BookController {
         return new ResponseEntity<>(books, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<Book> createBook(@RequestBody Book book) {
         // Säkerställ att inget ID skickas med
@@ -53,12 +55,14 @@ public class BookController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<Book> updateBook(@RequestBody Book book) {
         Book updateBook = bookService.updateBook(book);
         return new ResponseEntity<>(updateBook, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping
     public ResponseEntity<Book> deleteBook(@RequestBody Book book) {
         Book deletedBook = bookService.deleteBook(book);
