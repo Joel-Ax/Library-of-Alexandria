@@ -4,6 +4,7 @@ import com.example.libraryofalexandria.Models.Genre;
 import com.example.libraryofalexandria.Services.GenreService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,6 +17,7 @@ public class GenreController {
         this.genreService = genreService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<Genre> createGenre(@RequestBody Genre genre) {
         try {
@@ -36,6 +38,7 @@ public class GenreController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<Genre> updateGenre(@PathVariable Long id, @RequestBody Genre genre) {
       try {
@@ -46,6 +49,7 @@ public class GenreController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteGenre(@PathVariable Long id) {
         try {
