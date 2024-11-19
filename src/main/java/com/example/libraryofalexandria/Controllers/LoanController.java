@@ -46,12 +46,10 @@ public class LoanController {
         try {
             Loan loan = loanService.borrowBook(book, user);
 
-            LocalDate loanDate = LocalDate.now();
-            LocalDate dueDate = loanDate.plusDays(30);
-            loan.setLoanDate(loanDate);
-            loan.setDueDate(dueDate);
+            LocalDate loanDate = loan.getLoanDate();
+            LocalDate dueDate = loan.getDueDate();
 
-            // LinkedHashMap skriver ut i rätt ordning
+            // Prepare response
             Map<String, Object> response = new LinkedHashMap<>();
             response.put("title", book.getTitle());
             response.put("bookId", book.getId());
@@ -101,14 +99,14 @@ public class LoanController {
     public ResponseEntity<List<Book>> getActiveBorrowedBooks(@PathVariable Long id) {
         User user = userService.getUserById(id);
 
+        // Fetch active loans (where returned is NULL)
         List<Loan> activeLoans = loanService.getActiveLoans(user);
 
-        // Filtrerar fram böcker från aktiv lån
+        // Filter active loans where returnedDate is NULL (i.e., not returned yet)
         List<Book> borrowedBooks = activeLoans.stream()
-                .filter(loan -> Boolean.FALSE.equals(loan.getReturned()))
+                .filter(loan -> loan.getReturnedDate() == null)  // Only loans that have not been returned
                 .map(Loan::getBook)
                 .collect(Collectors.toList());
-
 
         return ResponseEntity.ok(borrowedBooks);
     }
@@ -118,11 +116,12 @@ public class LoanController {
     public ResponseEntity<List<Map<String, Object>>> getActiveBorrowedBooksSummary(@PathVariable Long id) {
         User user = userService.getUserById(id);
 
+        // Fetch active loans where returned is NULL (i.e., not returned yet)
         List<Loan> activeLoans = loanService.getActiveLoans(user);
 
-        // Filtrera fram titel och dueDate
+        // Filter active loans where returnedDate is NULL (i.e., not returned)
         List<Map<String, Object>> borrowedBooksSummary = activeLoans.stream()
-                .filter(loan -> Boolean.FALSE.equals(loan.getReturned()))
+                .filter(loan -> loan.getReturnedDate() == null)  // Only loans that have not been returned
                 .map(loan -> {
                     Map<String, Object> summary = new HashMap<>();
                     summary.put("title", loan.getBook().getTitle());
@@ -133,5 +132,6 @@ public class LoanController {
 
         return ResponseEntity.ok(borrowedBooksSummary);
     }
+
 
 }
