@@ -1,4 +1,4 @@
-package com.example.libraryofalexandria;
+package com.example.libraryofalexandria.Controllers;
 
 import com.example.libraryofalexandria.Models.Genre;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -24,6 +25,7 @@ public class GenreControllerIntegrationTest {
     private ObjectMapper objectMapper;
 
     @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
     public void testCreateGenre() throws Exception {
         Genre genre = new Genre();
         genre.setName("Science Fiction");
@@ -38,6 +40,7 @@ public class GenreControllerIntegrationTest {
     }
 
     @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
     public void testCreateGenreBadRequest() throws Exception {
         Genre genre = new Genre();
         genre.setName(null); // Invalid name

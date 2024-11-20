@@ -1,6 +1,5 @@
-package com.example.libraryofalexandria;
+package com.example.libraryofalexandria.Controllers;
 
-import com.example.libraryofalexandria.Controllers.GenreController;
 import com.example.libraryofalexandria.Models.Genre;
 import com.example.libraryofalexandria.Services.GenreService;
 import org.junit.jupiter.api.Test;
@@ -13,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.doThrow;
 
-class GenreControllerTest {
+class GenreControllerUnitTest {
 
     @InjectMocks
     private GenreController genreController;
@@ -21,7 +20,7 @@ class GenreControllerTest {
     @Mock
     private GenreService genreService;
 
-    public GenreControllerTest() {
+    public GenreControllerUnitTest() {
         MockitoAnnotations.openMocks(this);
     }
 
