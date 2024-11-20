@@ -15,7 +15,7 @@ import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
-public class AuthorControllerTest {
+public class AuthorControllerUnitTest {
 
     @Mock
     private AuthorService authorService;
@@ -32,7 +32,7 @@ public class AuthorControllerTest {
 
     @Test
     void testCreateAuthor() {
-        // Arrange
+        // Arrange (mockar en ny user)
         Author mockAuthor = new Author();
         mockAuthor.setId(1L);
         mockAuthor.setFirstName("Jakob");
