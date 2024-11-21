@@ -4,6 +4,7 @@ import com.example.libraryofalexandria.Models.Book;
 import com.example.libraryofalexandria.Services.BookService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,12 +26,19 @@ public class BookController {
         return new ResponseEntity<>(books, HttpStatus.OK);
     }
 
-    @GetMapping("/{title}")
+    @GetMapping("/title/{title}")
     public ResponseEntity<Book> getBookByTitle(@PathVariable String title) {
         Book book = bookService.getBookByTitle(title);
         return ResponseEntity.ok(book);
     }
 
+    @GetMapping("/genre/{genre}")
+    public ResponseEntity<List<Book>> getBookByGenre(@PathVariable String genre) {
+        List<Book> books = bookService.getBooksByGenre(genre);
+        return new ResponseEntity<>(books, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<Book> createBook(@RequestBody Book book) {
         // Säkerställ att inget ID skickas med
@@ -41,21 +49,29 @@ public class BookController {
         }
         try {
             Book savedBook = bookService.createBook(book);
-            return new ResponseEntity<>(savedBook, HttpStatus.CREATED);
+            return new ResponseEntity<>(HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<Book> updateBook(@RequestBody Book book) {
         Book updateBook = bookService.updateBook(book);
         return new ResponseEntity<>(updateBook, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping
     public ResponseEntity<Book> deleteBook(@RequestBody Book book) {
         Book deletedBook = bookService.deleteBook(book);
         return new ResponseEntity<>(deletedBook, HttpStatus.OK);
+    }
+
+    @GetMapping("/noGenres")
+    public ResponseEntity<List<Book>> getBooksWithNoGenres() {
+        List<Book> books = bookService.getBooksWithNoGenre();
+        return new ResponseEntity<>(books, HttpStatus.OK);
     }
 }

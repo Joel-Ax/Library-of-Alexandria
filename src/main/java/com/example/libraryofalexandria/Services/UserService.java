@@ -1,5 +1,6 @@
 package com.example.libraryofalexandria.Services;
 
+import com.example.libraryofalexandria.Exceptions.ResourceNotFoundException;
 import com.example.libraryofalexandria.Models.User;
 import com.example.libraryofalexandria.Repositories.UserRepository;
 import org.springframework.stereotype.Service;
@@ -26,13 +27,12 @@ public class UserService {
 
   public User getUserById(Long id) {
     return userRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("User not found"));
+        .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
   }
 
   public User updateUser(Long id, User user){
     User existingUser = userRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("User not found"));
-
+        .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
 
     Optional.ofNullable(user.getFirstName()).ifPresent(existingUser::setFirstName);
     Optional.ofNullable(user.getLastName()).ifPresent(existingUser::setLastName);
@@ -43,7 +43,7 @@ public class UserService {
 
   public void deleteUser(Long id) {
     User user = userRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("User not found"));
+        .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
     userRepository.delete(user);
   }
 }

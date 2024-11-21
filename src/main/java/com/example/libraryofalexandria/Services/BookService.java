@@ -1,10 +1,13 @@
 package com.example.libraryofalexandria.Services;
 
 import com.example.libraryofalexandria.Models.Book;
+import com.example.libraryofalexandria.Models.Genre;
 import com.example.libraryofalexandria.Repositories.BookRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class BookService {
@@ -23,9 +26,16 @@ public class BookService {
         return bookRepository.findByTitle(title);
     }
 
-    /*public List<Book> getBooksByAuthor(String name) {
-        return bookRepository.findAuthorByName(name);
-    }*/
+    public List<Book> getBooksByGenre(String genre) {
+        List<Book> allBooks = bookRepository.findAll();
+        List<Book> filteredBooks = new ArrayList<>();
+        for (Book book : allBooks) {
+            if(book.hasGenre(genre)) {
+                filteredBooks.add(book);
+            }
+        }
+        return filteredBooks;
+    }
 
     public Book createBook(Book book) {
         return bookRepository.save(book);
@@ -36,7 +46,6 @@ public class BookService {
     }
 
     public Book deleteBook(Book book) {
-        // Assuming Book has an ID field, you can look it up by ID.
         Book bookToDelete = bookRepository.findById(book.getId()).orElse(null);
         if (bookToDelete != null) {
             bookRepository.delete(bookToDelete);
@@ -44,4 +53,14 @@ public class BookService {
         return bookToDelete;
     }
 
+    public List<Book> getBooksWithNoGenre() {
+        List<Book> allBooks = bookRepository.findAll();
+        List<Book> filteredBooks = new ArrayList<>();
+        for (Book book : allBooks) {
+            if(book.getGenres().isEmpty()) {
+                filteredBooks.add(book);
+            }
+        }
+        return filteredBooks;
+    }
 }
