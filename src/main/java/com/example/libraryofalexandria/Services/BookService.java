@@ -1,7 +1,10 @@
 package com.example.libraryofalexandria.Services;
 
+import com.example.libraryofalexandria.Exceptions.ResourceNotFoundException;
 import com.example.libraryofalexandria.Models.Book;
 import com.example.libraryofalexandria.Models.Genre;
+import com.example.libraryofalexandria.Models.Loan;
+import com.example.libraryofalexandria.Models.User;
 import com.example.libraryofalexandria.Repositories.BookRepository;
 import org.springframework.stereotype.Service;
 
@@ -45,13 +48,22 @@ public class BookService {
         return bookRepository.save(book);
     }
 
-    public Book deleteBook(Book book) {
+    public void deleteBook(Long id) {
+        Book book = bookRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + id));
+
+        //List<Loan> loans = loanRepository.findByBookId(id);
+        //loanRepository.deleteAll(loans);
+        bookRepository.delete(book);
+    }
+
+    /*public Book deleteBook(Book book) {
         Book bookToDelete = bookRepository.findById(book.getId()).orElse(null);
         if (bookToDelete != null) {
             bookRepository.delete(bookToDelete);
         }
         return bookToDelete;
-    }
+    }*/
 
     public List<Book> getBooksWithNoGenre() {
         List<Book> allBooks = bookRepository.findAll();

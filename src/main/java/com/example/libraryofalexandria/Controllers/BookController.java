@@ -63,10 +63,10 @@ public class BookController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping
-    public ResponseEntity<Book> deleteBook(@RequestBody Book book) {
-        Book deletedBook = bookService.deleteBook(book);
-        return new ResponseEntity<>(deletedBook, HttpStatus.OK);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
+        bookService.deleteBook(id);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/noGenres")

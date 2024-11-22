@@ -36,6 +36,8 @@ public class Book {
             inverseJoinColumns = @JoinColumn(name = "genre_id", foreignKey = @ForeignKey(name = "fk_books_genres_genre")))
     private Set<Genre> genres = new HashSet<>();
 
+    @OneToMany(mappedBy = "book", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private Set<Loan> loans = new HashSet<>();
 
     public boolean hasGenre(String genreName) {
         for (Genre genre : genres) {
