@@ -1,6 +1,8 @@
 package com.example.libraryofalexandria.Services;
 
+import com.example.libraryofalexandria.Exceptions.ResourceNotFoundException;
 import com.example.libraryofalexandria.Models.Admin;
+import com.example.libraryofalexandria.Models.User;
 import com.example.libraryofalexandria.Repositories.AdminRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,12 +32,11 @@ public class AdminService implements UserDetailsService {
     }
 
     // Radera admin
-    public Admin deleteAdmin(Long id) {
-        Admin adminToDelete = adminRepository.findById(id).orElse(null);
-        if (adminToDelete != null) {
-            adminRepository.delete(adminToDelete);
-        }
-        return adminToDelete;
+    public void deleteAdmin(Long id) {
+        Admin admin = adminRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Admin not found with id " + id));
+        adminRepository.delete(admin);
+
     }
 
     @Override

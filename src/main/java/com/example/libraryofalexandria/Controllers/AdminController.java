@@ -39,9 +39,9 @@ public class AdminController {
     // Radera en administratör
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Admin> deleteAdmin(@PathVariable Long id) {
-        Admin deletedAdmin = adminService.deleteAdmin(id);
-        return new ResponseEntity<>(deletedAdmin, HttpStatus.OK);
+    public ResponseEntity<Void> deleteAdmin(@PathVariable Long id) {
+        adminService.deleteAdmin(id);
+        return ResponseEntity.noContent().build();
     }
     
 
