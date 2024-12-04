@@ -119,6 +119,6 @@ INSERT INTO loans (book_id, user_id, loan_date, due_date, returned_date) VALUES
 
 -- Populate admins
 INSERT INTO admins (username, password, role) VALUES
-    ( 'admin', '{noop}admin123', 'ADMIN'),
-    ( 'lisa', '{noop}lisa123', 'ADMIN'),
-    ( 'lars', '{noop}lars123', 'ADMIN');
+    ( 'admin', 'admin123', 'ADMIN'),
+    ( 'lisa', 'lisa123', 'ADMIN'),
+    ( 'lars', 'lars123', 'ADMIN');

@@ -8,27 +8,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class AdminService implements UserDetailsService {
+public class AdminService {
 
     private final AdminRepository adminRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public AdminService(AdminRepository adminRepository) {
+    public AdminService(AdminRepository adminRepository, PasswordEncoder passwordEncoder) {
         this.adminRepository = adminRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    // Skapa admin
+    public Admin createAdmin(Admin admin) {
+        //Encode the password before saving
+        admin.setPassword(passwordEncoder.encode(admin.getPassword()));
+        return adminRepository.save(admin);
     }
 
     // Hämta alla administratörer
     public List<Admin> getAllAdmins() {
         return adminRepository.findAll();
-    }
-
-    // Skapa admin
-    public Admin createAdmin(Admin admin) {
-        return adminRepository.save(admin);
     }
 
     // Radera admin
@@ -37,17 +42,5 @@ public class AdminService implements UserDetailsService {
             .orElseThrow(() -> new ResourceNotFoundException("Admin not found with id " + id));
         adminRepository.delete(admin);
 
-    }
-
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Admin admin = adminRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
-
-        return org.springframework.security.core.userdetails.User
-                .withUsername(admin.getUsername())
-                .password(admin.getPassword())
-                .roles(admin.getRole())
-                .build();
     }
 }

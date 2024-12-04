@@ -1,5 +1,6 @@
-package com.example.libraryofalexandria;
+package com.example.libraryofalexandria.Security.Config;
 
+import com.example.libraryofalexandria.Security.Jwt.JwtAuthenticationFilter;
 import com.example.libraryofalexandria.Services.AdminService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,16 +11,25 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private final AdminService adminService;
+    //private final AdminService adminService;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    public SecurityConfig(AdminService adminService) {
-        this.adminService = adminService;
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        //this.adminService = adminService;
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return NoOpPasswordEncoder.getInstance();
     }
 
     @Bean
@@ -27,7 +37,7 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/**").permitAll()
-                        .requestMatchers("/api/admins").hasRole("ADMIN").anyRequest().authenticated()
+                        //.requestMatchers("/api/admins").hasRole("ADMIN").anyRequest().authenticated()
                 )
                 .headers(headers -> headers
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
