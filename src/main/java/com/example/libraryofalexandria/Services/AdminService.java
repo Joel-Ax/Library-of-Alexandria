@@ -2,9 +2,10 @@ package com.example.libraryofalexandria.Services;
 
 import com.example.libraryofalexandria.Exceptions.ResourceNotFoundException;
 import com.example.libraryofalexandria.Models.Admin;
-import com.example.libraryofalexandria.Models.User;
 import com.example.libraryofalexandria.Repositories.AdminRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,9 +17,13 @@ import java.util.List;
 public class AdminService implements UserDetailsService {
 
     private final AdminRepository adminRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public AdminService(AdminRepository adminRepository) {
+    // Konstruktorinjektion för både AdminRepository och PasswordEncoder
+    @Autowired
+    public AdminService(AdminRepository adminRepository, @Lazy PasswordEncoder passwordEncoder) {
         this.adminRepository = adminRepository;
+        this.passwordEncoder = passwordEncoder;  // Här injiceras PasswordEncoder med @Lazy
     }
 
     // Hämta alla administratörer
@@ -28,17 +33,18 @@ public class AdminService implements UserDetailsService {
 
     // Skapa admin
     public Admin createAdmin(Admin admin) {
+        admin.setPassword(passwordEncoder.encode(admin.getPassword())); // Hasha lösenordet
         return adminRepository.save(admin);
     }
 
     // Radera admin
     public void deleteAdmin(Long id) {
         Admin admin = adminRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Admin not found with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Admin not found with id " + id));
         adminRepository.delete(admin);
-
     }
 
+    // Implementera metoden från UserDetailsService för att autentisera admin
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Admin admin = adminRepository.findByUsername(username)
