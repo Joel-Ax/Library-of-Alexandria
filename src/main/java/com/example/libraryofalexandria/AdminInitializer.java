@@ -23,7 +23,7 @@ public class AdminInitializer implements CommandLineRunner {
         if (!adminRepository.existsByUsername("admin")) {
             Admin admin = new Admin();
             admin.setUsername("admin");
-            admin.setPassword(passwordEncoder.encode("admin123")); // Hasha lösenordet
+            admin.setPassword(passwordEncoder.encode("Admin123!Password")); // Hasha lösenordet
             admin.setRole("ADMIN");
             adminRepository.save(admin);
         }

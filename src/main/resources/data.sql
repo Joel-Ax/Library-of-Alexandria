@@ -103,11 +103,11 @@ INSERT INTO books_genres (book_id, genre_id) VALUES
 
 INSERT INTO users (first_name, last_name, email, member_number, password)
 VALUES
-    ('Anna', 'Andersson', 'anna.andersson@email.com', 'M20230001', 'password123'),
-    ('Erik', 'Eriksson', 'erik.eriksson@email.com', 'M20230002', 'password123'),
-    ('Maria', 'Svensson', 'maria.svensson@email.com', 'M20230003', 'password123'),
-    ('Johan', 'Johansson', 'johan.johansson@email.com', 'M20230004', 'password123'),
-    ('Eva', 'Larsson', 'eva.larsson@email.com', 'M20230005', 'password123');
+    ('Anna', 'Andersson', 'anna.andersson@email.com', 'M20230001', 'Password123!'),
+    ('Erik', 'Eriksson', 'erik.eriksson@email.com', 'M20230002', 'Password123!'),
+    ('Maria', 'Svensson', 'maria.svensson@email.com', 'M20230003', 'Password123!'),
+    ('Johan', 'Johansson', 'johan.johansson@email.com', 'M20230004', 'Password123!'),
+    ('Eva', 'Larsson', 'eva.larsson@email.com', 'M20230005', 'Password123!');
 
 
 -- Populate loans

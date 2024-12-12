@@ -29,6 +29,11 @@ public class UserService {
 
   // Skapa en ny användare
   public User createUser(User user) {
+    // Kontrollera om lösenordet är giltigt
+    if (!isValidPassword(user.getPassword())) {
+      throw new IllegalArgumentException("Password must meet security requirements");
+    }
+
     // Hasha lösenordet innan användaren sparas
     user.setPassword(passwordEncoder.encode(user.getPassword()));
     return userRepository.save(user);
@@ -51,6 +56,10 @@ public class UserService {
 
     // Om lösenordet har ändrats, hasha det
     if (user.getPassword() != null) {
+      // Kontrollera om det nya lösenordet är giltigt
+      if (!isValidPassword(user.getPassword())) {
+        throw new IllegalArgumentException("Password must meet security requirements");
+      }
       existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
     }
 
@@ -62,5 +71,15 @@ public class UserService {
     User user = userRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
     userRepository.delete(user);
+  }
+
+  // Validera lösenordets komplexitet
+  private boolean isValidPassword(String password) {
+    return password != null &&
+            password.length() >= 12 && // Minst 12 tecken
+            password.matches(".*[A-Z].*") && // Innehåller minst en versal
+            password.matches(".*[a-z].*") && // Innehåller minst en gemen
+            password.matches(".*\\d.*") && // Innehåller minst en siffra
+            password.matches(".*[!@#$%^&*(),.?\":{}|<>].*"); // Innehåller minst ett specialtecken
   }
 }

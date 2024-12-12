@@ -3,6 +3,7 @@ package com.example.libraryofalexandria.Services;
 import com.example.libraryofalexandria.Exceptions.ResourceNotFoundException;
 import com.example.libraryofalexandria.Models.Admin;
 import com.example.libraryofalexandria.Repositories.AdminRepository;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -33,6 +34,11 @@ public class AdminService implements UserDetailsService {
 
     // Skapa admin
     public Admin createAdmin(Admin admin) {
+        // Validate password
+        if (!isValidPassword(admin.getPassword())) {
+            throw new IllegalArgumentException("Password does not meet the required criteria");
+        }
+
         admin.setPassword(passwordEncoder.encode(admin.getPassword())); // Hasha lösenordet
         return adminRepository.save(admin);
     }
@@ -55,5 +61,15 @@ public class AdminService implements UserDetailsService {
                 .password(admin.getPassword())
                 .roles(admin.getRole())
                 .build();
+    }
+
+    // Password validation method
+    private boolean isValidPassword(String password) {
+        return StringUtils.isNotBlank(password) &&
+                password.length() >= 12 &&
+                StringUtils.containsAny(password, "ABCDEFGHIJKLMNOPQRSTUVWXYZ") && // Uppercase
+                StringUtils.containsAny(password, "abcdefghijklmnopqrstuvwxyz") && // Lowercase
+                StringUtils.containsAny(password, "0123456789") && // Digit
+                StringUtils.containsAny(password, "!@#$%^&*()_+[]{}|;:,.<>?/`~"); // Special chars
     }
 }
