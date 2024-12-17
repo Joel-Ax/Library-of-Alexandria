@@ -7,7 +7,10 @@ import com.example.libraryofalexandria.Repositories.LoanRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class LoanService {
@@ -27,14 +30,12 @@ public class LoanService {
         loan.setBook(book);
         loan.setUser(user);
         loan.setLoanDate(LocalDate.now());
-        loan.setDueDate(LocalDate.now().plusDays(30)); // Set due date
-        loan.setReturned(false); // Ensure it's not returned
+        loan.setDueDate(LocalDate.now().plusDays(30));
+        loan.setReturned(false);
 
-        // Save the loan and ensure the transaction is flushed
         loanRepository.save(loan);
-        loanRepository.flush();  // Forces the loan to be saved immediately
 
-        book.setAvailable(false); // Mark the book as not available
+        book.setAvailable(false);
         return loan;
     }
 
@@ -42,15 +43,37 @@ public class LoanService {
         return loanRepository.findByUserAndReturnedDateIsNull(user);
     }
 
-    public Loan returnBook(Long loanId) {
-        Loan loan = loanRepository.findById(loanId)
-                .orElseThrow(() -> new IllegalArgumentException("Loan not found"));
+    public Loan returnBook(Book book, User user) {
+        Loan activeLoan = getActiveLoanByBookAndUser(book, user);
+        activeLoan.setReturned(true);
+        activeLoan.setReturnedDate(LocalDate.now());
+        loanRepository.save(activeLoan);
 
-        loan.setReturned(true);
-        loan.setReturnedDate(LocalDate.now());
+        book.setAvailable(true);
+        return activeLoan;
+    }
 
-        return loanRepository.save(loan);
+    public Loan getActiveLoanByBookAndUser(Book book, User user) {
+        return getActiveLoans(user).stream()
+                .filter(loan -> loan.getBook().equals(book))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("No active loan found for this book and user"));
+    }
+
+    public List<Book> getBorrowedBooks(User user) {
+        return getActiveLoans(user).stream()
+                .map(Loan::getBook)
+                .collect(Collectors.toList());
+    }
+
+    public List<Map<String, Object>> getBorrowedBooksSummary(User user) {
+        return getActiveLoans(user).stream()
+                .map(loan -> {
+                    Map<String, Object> summary = new HashMap<>();
+                    summary.put("title", loan.getBook().getTitle());
+                    summary.put("dueDate", loan.getDueDate());
+                    return summary;
+                })
+                .collect(Collectors.toList());
     }
 }
-
-

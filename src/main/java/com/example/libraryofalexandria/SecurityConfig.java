@@ -14,6 +14,7 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.filter.CommonsRequestLoggingFilter;
 
 @Configuration
 @EnableMethodSecurity
@@ -47,5 +48,17 @@ public class SecurityConfig {
     @Lazy // Use lazy initialization for the PasswordEncoder
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(); // Skapa PasswordEncoder Bean
+    }
+
+
+    // Konfigurerar ett filter som loggar detaljer om inkommande HTTP-förfrågningar,
+    @Bean
+    public CommonsRequestLoggingFilter requestLoggingFilter() {
+        CommonsRequestLoggingFilter filter = new CommonsRequestLoggingFilter();
+        filter.setIncludeClientInfo(true);
+        filter.setIncludeQueryString(true);
+        filter.setIncludePayload(true);
+        filter.setIncludeHeaders(true);
+        return filter;
     }
 }

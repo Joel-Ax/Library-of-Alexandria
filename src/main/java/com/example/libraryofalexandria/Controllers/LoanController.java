@@ -34,104 +34,57 @@ public class LoanController {
         this.userService = userService;
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/borrow")
     public ResponseEntity<?> borrowBook(@RequestBody Map<String, Object> body) {
-        String bookTitle = (String) body.get("bookTitle");
-        Long userId = ((Number) body.get("userId")).longValue();
-
-        Book book = bookService.getBookByTitle(bookTitle);
-        User user = userService.getUserById(userId);
-
         try {
+            String bookTitle = (String) body.get("bookTitle");
+            Long userId = ((Number) body.get("userId")).longValue();
+
+            Book book = bookService.getBookByTitle(bookTitle);
+            User user = userService.getUserById(userId);
+
             Loan loan = loanService.borrowBook(book, user);
 
-            LocalDate loanDate = loan.getLoanDate();
-            LocalDate dueDate = loan.getDueDate();
-
-            // Prepare response
             Map<String, Object> response = new LinkedHashMap<>();
             response.put("title", book.getTitle());
             response.put("bookId", book.getId());
-            response.put("loanDate", loanDate);
-            response.put("dueDate", dueDate);
+            response.put("loanDate", loan.getLoanDate());
+            response.put("dueDate", loan.getDueDate());
             response.put("firstName", user.getFirstName());
             response.put("lastName", user.getLastName());
 
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (RuntimeException ex) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("The book is already borrowed");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
         }
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/return")
     public ResponseEntity<?> returnBook(@RequestBody Map<String, Object> body) {
-        String bookTitle = (String) body.get("bookTitle");
-        Long userId = ((Number) body.get("userId")).longValue();
-
-        Book book = bookService.getBookByTitle(bookTitle);
-        User user = userService.getUserById(userId);
-
         try {
-            // Filtrerar fram aktiva lån
-            Loan activeLoan = loanService.getActiveLoans(user).stream()
-                    .filter(loan -> loan.getBook().equals(book) && !loan.getReturned())
-                    .findFirst()
-                    .orElse(null);
+            String bookTitle = (String) body.get("bookTitle");
+            Long userId = ((Number) body.get("userId")).longValue();
 
-            Loan updatedLoan = loanService.returnBook(activeLoan.getId());
+            Book book = bookService.getBookByTitle(bookTitle);
+            User user = userService.getUserById(userId);
 
-            book.setAvailable(true);
-            bookService.updateBook(book);
-
-            return new ResponseEntity<>("Book returned successfully", HttpStatus.OK);
-
+            loanService.returnBook(book, user);
+            return ResponseEntity.ok("Book returned successfully");
         } catch (RuntimeException ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An error occurred while returning the book");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
         }
     }
-
 
     @GetMapping("/onLoan/{id}")
     public ResponseEntity<List<Book>> getActiveBorrowedBooks(@PathVariable Long id) {
         User user = userService.getUserById(id);
-
-        // Fetch active loans (where returned is NULL)
-        List<Loan> activeLoans = loanService.getActiveLoans(user);
-
-        // Filter active loans where returnedDate is NULL (i.e., not returned yet)
-        List<Book> borrowedBooks = activeLoans.stream()
-                .filter(loan -> loan.getReturnedDate() == null)  // Only loans that have not been returned
-                .map(Loan::getBook)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(borrowedBooks);
+        return ResponseEntity.ok(loanService.getBorrowedBooks(user));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/onLoan/{id}/dueDates")
     public ResponseEntity<List<Map<String, Object>>> getActiveBorrowedBooksSummary(@PathVariable Long id) {
         User user = userService.getUserById(id);
-
-        // Fetch active loans where returned is NULL (i.e., not returned yet)
-        List<Loan> activeLoans = loanService.getActiveLoans(user);
-
-        // Filter active loans where returnedDate is NULL (i.e., not returned)
-        List<Map<String, Object>> borrowedBooksSummary = activeLoans.stream()
-                .filter(loan -> loan.getReturnedDate() == null)  // Only loans that have not been returned
-                .map(loan -> {
-                    Map<String, Object> summary = new HashMap<>();
-                    summary.put("title", loan.getBook().getTitle());
-                    summary.put("dueDate", loan.getDueDate());
-                    return summary;
-                })
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(borrowedBooksSummary);
+        return ResponseEntity.ok(loanService.getBorrowedBooksSummary(user));
     }
-
-
 }
+
