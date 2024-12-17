@@ -35,6 +35,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     // Retrieve the Authorization header from the incoming request
     final String authorizationHeader = request.getHeader("Authorization");
 
+    logger.debug("Authorization Header: " + authorizationHeader);
+
     // Initialize username and JWT variables
     String username = null;
     String jwt = null;
@@ -44,8 +46,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       // Extract the JWT token (removing "Bearer " prefix)
       jwt = authorizationHeader.substring(7);
 
+      logger.debug("Extracted JWT: " + jwt);
+
       // Extract username from the JWT token
-      username = jwtUtil.extractUsername(jwt);
+      try {
+        username = jwtUtil.extractUsername(jwt);
+        logger.debug("Extracted Username: " + username);
+      } catch (Exception e) {
+        logger.error("JWT Validation Error: ", e);
+      }
     }
 
     // Verify if username is present and no authentication is already set in the context
