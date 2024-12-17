@@ -12,6 +12,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -33,10 +35,12 @@ public class SecurityConfig {
     public AuthenticationSuccessHandler authenticationSuccessHandler() {
         return (request, response, authentication) -> {
             String username = authentication.getName();
-            adminService.resetFailedAttempts(username);  // Reset failed attempts on successful login
-            response.sendRedirect("/home");  // Redirect to the home page or wherever after success
+            adminService.resetFailedAttempts(username);
+            response.sendRedirect("/home");
         };
     }
+    @Bean
+    public PasswordEncoder passwordEncoder() {    return NoOpPasswordEncoder.getInstance();}
 
 
     @Bean
@@ -52,28 +56,23 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/**").permitAll()  // Tillåt alla för alla resurser
-                        .requestMatchers("/api/admins").hasRole("ADMIN")  // Endast admin åtkomst för /api/admins
+                        .requestMatchers("/login").permitAll()
+                        //.requestMatchers("/api/admins").hasRole("ADMIN")
                         .anyRequest().authenticated()  // Alla andra begärningar kräver autentisering
                 )
                 .headers(headers -> headers
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)  // För att stödja H2 console eller andra inbäddade sidor
                 )
-                .httpBasic(Customizer.withDefaults())  // Aktiverar grundläggande HTTP-inloggning
+
                 .formLogin(form -> form  // Konfigurera form-baserad inloggning
-                        .loginPage("/login")  // Använd en anpassad inloggningssida (valfritt)
                         .loginProcessingUrl("/login")  // Sätt rätt URL för att bearbeta login
                         .defaultSuccessUrl("/home", true)  // Här anger du den URL dit användaren ska omdirigeras efter lyckad inloggning
                         .failureUrl("/login?error=true")
-                        .permitAll()  // Tillåt alla att komma åt inloggningssidan
-                        .failureHandler(authenticationFailureHandler())  // Use your custom failure handler
-                        .successHandler(authenticationSuccessHandler())  // Use your custom success handler
+                        .permitAll()
+                        .failureHandler(authenticationFailureHandler())
+                        .successHandler(authenticationSuccessHandler())
                 )
-                .logout(logout -> logout  // Konfigurera utloggning
-                        .logoutUrl("/logout")  // Definiera URL för utloggning (standard är /logout)
-                        .logoutSuccessUrl("/")  // Omdirigera till en specifik URL efter utloggning
-                        .permitAll()  // Tillåt alla att logga ut
-                );
+        ;
         return http.build();
     }
 
