@@ -20,9 +20,19 @@ public class Admin {
     @Column(name = "username", nullable = false, unique = true, length = 50)
     private String username;
 
-    @Column(name = "password", nullable = false, length = 50)
+    @Column(name = "password", nullable = false, length = 255)
     private String password;
 
     @Column(name = "role", nullable = false)
     private String role;
+
+    @Column(nullable = false, columnDefinition = "INTEGER DEFAULT 0")
+    private int failedAttempts = 0;
+
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private boolean accountLocked = false;
+
+    @Column(name = "lock_time")
+    private Long lockTime; // Tidpunkt när kontot låstes, för att hantera upplåsning efter en viss tid.
 }
+

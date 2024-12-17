@@ -29,7 +29,8 @@ CREATE TABLE IF NOT EXISTS users (
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
-    member_number VARCHAR(10) NOT NULL UNIQUE
+    member_number VARCHAR(10) NOT NULL UNIQUE,
+    password VARCHAR(100) NOT NULL
     );
 CREATE TABLE IF NOT EXISTS loans (
     loan_id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -44,7 +45,7 @@ CREATE TABLE IF NOT EXISTS loans (
 CREATE TABLE IF NOT EXISTS admins (
     admin_id BIGINT PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(50) NOT NULL UNIQUE,
-    password VARCHAR(50) NOT NULL,
+    password VARCHAR(255) NOT NULL,
     role VARCHAR(20) NOT NULL
     );
 -- Clear existing data
@@ -100,13 +101,14 @@ INSERT INTO books_genres (book_id, genre_id) VALUES
     (9, 3),-- Flickan som lekte med elden: Crime
     (10, 4);-- Mrs. Dalloway: Classic
 
--- Populate users
-INSERT INTO users (first_name, last_name, email, member_number) VALUES
-    ( 'Anna', 'Andersson', 'anna.andersson@email.com', 'M20230001'),
-    ( 'Erik', 'Eriksson', 'erik.eriksson@email.com', 'M20230002'),
-    ( 'Maria', 'Svensson', 'maria.svensson@email.com', 'M20230003'),
-    ( 'Johan', 'Johansson', 'johan.johansson@email.com','M20230004'),
-    ( 'Eva', 'Larsson', 'eva.larsson@email.com', 'M20230005');
+INSERT INTO users (first_name, last_name, email, member_number, password)
+VALUES
+    ('Anna', 'Andersson', 'anna.andersson@email.com', 'M20230001', 'Password123!'),
+    ('Erik', 'Eriksson', 'erik.eriksson@email.com', 'M20230002', 'Password123!'),
+    ('Maria', 'Svensson', 'maria.svensson@email.com', 'M20230003', 'Password123!'),
+    ('Johan', 'Johansson', 'johan.johansson@email.com', 'M20230004', 'Password123!'),
+    ('Eva', 'Larsson', 'eva.larsson@email.com', 'M20230005', 'Password123!');
+
 
 -- Populate loans
 INSERT INTO loans (book_id, user_id, loan_date, due_date, returned_date) VALUES
@@ -117,8 +119,4 @@ INSERT INTO loans (book_id, user_id, loan_date, due_date, returned_date) VALUES
     ( 3, 5, '2023-12-20', '2024-01-20', '2024-01-18'),
     ( 6, 1, '2023-12-25', '2024-01-25', '2024-01-23');
 
--- Populate admins
-INSERT INTO admins (username, password, role) VALUES
-    ( 'admin', 'admin123', 'ADMIN'),
-    ( 'lisa', 'lisa123', 'ADMIN'),
-    ( 'lars', 'lars123', 'ADMIN');
+
