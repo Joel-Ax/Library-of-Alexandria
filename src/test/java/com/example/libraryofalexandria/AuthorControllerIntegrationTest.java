@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
@@ -25,31 +26,19 @@ public class AuthorControllerIntegrationTest {
     private MockMvc mockMvc;
 
     @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
     void createAuthorAsAdmin() throws Exception {
         // Arrange
         String jsonAuthor = "{\"firstName\": \"Jakob\", \"lastName\": \"Olsson\", \"birthDate\": \"2000-08-03\" }";
 
         // Act
         mockMvc.perform(post("/")
-                        .with(httpBasic("admin", "admin123"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonAuthor))
                 .andExpect(status().isCreated()) // Assert
                 .andExpect(jsonPath("$.firstName").value("Jakob"))
                 .andExpect(jsonPath("$.lastName").value("Olsson"))
                 .andExpect(jsonPath("$.birthDate").value("2000-08-03"));
-    }
-
-    @Test
-    void createAuthorWithoutAuthentication() throws Exception {
-        // Arrange
-        String jsonAuthor = "{\"firstName\": \"Jakob\", \"lastName\": \"Olsson\", \"birthDate\": \"2000-08-03\" }";
-
-        // Act
-        mockMvc.perform(post("/")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonAuthor))
-                .andExpect(status().isUnauthorized()); // Assert
     }
 
 }

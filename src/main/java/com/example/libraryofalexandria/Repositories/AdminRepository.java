@@ -13,6 +13,9 @@ import java.util.Optional;
 public interface AdminRepository extends JpaRepository<Admin, Long> {
     Optional<Admin> findByUsername(String username);
 
+    // Lägg till metoden för att kontrollera om användarnamnet finns
+    boolean existsByUsername(String username);
+
     @Modifying
     @Query("UPDATE Admin a SET a.failedAttempts = :failedAttempts WHERE a.username = :username")
     void updateFailedAttempts(@Param("failedAttempts") int failedAttempts, @Param("username") String username);
