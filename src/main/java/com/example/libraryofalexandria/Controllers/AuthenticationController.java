@@ -1,6 +1,10 @@
 package com.example.libraryofalexandria.Controllers;
 
+import com.example.libraryofalexandria.Models.Admin;
+import com.example.libraryofalexandria.Repositories.AdminRepository;
 import com.example.libraryofalexandria.Security.Jwt.JwtUtil;
+import com.example.libraryofalexandria.Services.AdminService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -11,18 +15,26 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthenticationController {
   private final AuthenticationManager authenticationManager;
   private final UserDetailsService userDetailsService;
   private final JwtUtil jwtUtil;
+  private final AdminRepository adminRepository;
+  private final AdminService adminService;
 
   public AuthenticationController(
+      AdminRepository adminRepository,
+      AdminService adminService,
       AuthenticationManager authenticationManager,
       UserDetailsService userDetailsService,
       JwtUtil jwtUtil
   ) {
+    this.adminRepository = adminRepository;
+    this.adminService = adminService;
     this.authenticationManager = authenticationManager;
     this.userDetailsService = userDetailsService;
     this.jwtUtil = jwtUtil;
@@ -54,6 +66,20 @@ public class AuthenticationController {
   @PostMapping("/login")
   public ResponseEntity<?> createAuthenticationToken(@RequestBody LoginRequest authenticationRequest) throws Exception {
     try {
+
+      // Hämta användaren först
+      Optional<Admin> adminOptional = adminRepository.findByUsername(authenticationRequest.getUsername());
+
+      // Om användaren finns, försök låsa upp kontot
+      if (adminOptional.isPresent()) {
+        Admin admin = adminOptional.get();
+        adminService.unlockAccountIfNecessary(admin);
+      }
+
+      // Kontrollera om kontot är låst
+      if (adminOptional.isPresent() && adminOptional.get().isAccountLocked()) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Account is locked");
+      }
       // Authenticate the user
       authenticationManager.authenticate(
           new UsernamePasswordAuthenticationToken(
@@ -61,7 +87,12 @@ public class AuthenticationController {
               authenticationRequest.getPassword()
           )
       );
+
+      // Om autentiseringen lyckas, återställ misslyckade inloggningsförsök
+      adminService.resetFailedAttempts(authenticationRequest.getUsername());
     } catch (Exception e) {
+      // Om autentiseringen misslyckas, öka antalet misslyckade försök
+      adminService.increaseFailedAttempts(authenticationRequest.getUsername());
       return ResponseEntity.badRequest().body("Invalid credentials");
     }
 

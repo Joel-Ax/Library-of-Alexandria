@@ -22,7 +22,7 @@ public class AdminService {
     private final AdminRepository adminRepository;
     private final PasswordEncoder passwordEncoder;
     private static final int MAX_FAILED_ATTEMPTS = 3;
-    private static final long LOCK_TIME_DURATION = 24 * 60 * 60 * 1000; // 24 timmar i millisekunder.
+    private static final long LOCK_TIME_DURATION = 30 * 1000; // 30 sekunder // 24 timmar i millisekunder.
 
     // Konstruktorinjektion för både AdminRepository och PasswordEncoder
     @Autowired
