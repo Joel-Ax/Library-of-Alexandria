@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.example.libraryofalexandria.DTO.UserDTO;
 import com.example.libraryofalexandria.Models.Book;
 import com.example.libraryofalexandria.Models.Loan;
+import com.example.libraryofalexandria.Models.User;
 import com.example.libraryofalexandria.Repositories.LoanRepository;
 
 @Service
@@ -29,7 +30,7 @@ public class LoanService {
 
         Loan loan = new Loan();
         loan.setBook(book);
-        loan.setUser(user);
+        loan.setUser(convertToUser(user));
         loan.setLoanDate(LocalDate.now());
         loan.setDueDate(LocalDate.now().plusDays(30));
         loan.setReturned(false);
@@ -76,5 +77,15 @@ public class LoanService {
                     return summary;
                 })
                 .collect(Collectors.toList());
+    }
+
+    private User convertToUser(UserDTO user) {
+        User convertedUser = new User();
+        convertedUser.setId(user.getId());
+        convertedUser.setFirstName(user.getFirstName());
+        convertedUser.setLastName(user.getLastName());
+        convertedUser.setEmail(user.getEmail());
+        convertedUser.setMemberNumber(user.getMemberNumber());
+        return convertedUser;
     }
 }

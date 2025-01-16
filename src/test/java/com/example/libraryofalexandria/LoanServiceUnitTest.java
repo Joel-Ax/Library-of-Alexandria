@@ -17,6 +17,7 @@ import org.mockito.MockitoAnnotations;
 import com.example.libraryofalexandria.DTO.UserDTO;
 import com.example.libraryofalexandria.Models.Book;
 import com.example.libraryofalexandria.Models.Loan;
+import com.example.libraryofalexandria.Models.User;
 import com.example.libraryofalexandria.Repositories.LoanRepository;
 import com.example.libraryofalexandria.Services.LoanService;
 
@@ -48,7 +49,7 @@ class LoanServiceUnitTest {
         Loan mockLoan = new Loan();
         mockLoan.setId(1L);
         mockLoan.setBook(book);
-        mockLoan.setUser(user);
+        mockLoan.setUser(convertToUser(user));
         mockLoan.setLoanDate(LocalDate.now());
         mockLoan.setDueDate(LocalDate.now().plusDays(30));
         mockLoan.setReturned(false);
@@ -67,5 +68,13 @@ class LoanServiceUnitTest {
         assertEquals(1L, result.getUser().getId());
         assertFalse(result.getReturned());
         assertFalse(book.getAvailable(), "Book should be marked as unavailable after borrowing");
+    }
+
+    private User convertToUser(UserDTO userDTO) {
+        User user = new User();
+        user.setId(userDTO.getId());
+        user.setFirstName(userDTO.getFirstName());
+        user.setLastName(userDTO.getLastName());
+        return user;
     }
 }

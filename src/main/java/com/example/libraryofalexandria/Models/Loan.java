@@ -2,8 +2,6 @@ package com.example.libraryofalexandria.Models;
 
 import java.time.LocalDate;
 
-import com.example.libraryofalexandria.DTO.UserDTO;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -34,7 +32,7 @@ public class Loan {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private UserDTO user;
+    private User user;
 
     @Column(name = "loan_date")
     private LocalDate loanDate;

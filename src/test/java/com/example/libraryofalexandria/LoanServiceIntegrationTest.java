@@ -66,7 +66,7 @@ class LoanServiceIntegrationTest {
 
         // Skapar nytt lån
         Loan loan = new Loan();
-        loan.setUser(userDTO);
+        loan.setUser(user);
         loan.setBook(book);
         loan.setDueDate(LocalDate.now().plusDays(14));
         loan.setReturned(false);
@@ -93,6 +93,14 @@ class LoanServiceIntegrationTest {
     public void testUnavailableBook() {
         // Hämtar användare
         user = userRepository.findById(2L).orElseThrow(() -> new RuntimeException("User not found in the database"));
+
+        // Skapar ny userDTO
+        userDTO = new UserDTO();
+        userDTO.setId(user.getId());
+        userDTO.setFirstName(user.getFirstName());
+        userDTO.setLastName(user.getLastName());
+        userDTO.setEmail(user.getEmail());
+        userDTO.setMemberNumber(user.getMemberNumber());
 
         // Mockar författare
         Author author = new Author();
