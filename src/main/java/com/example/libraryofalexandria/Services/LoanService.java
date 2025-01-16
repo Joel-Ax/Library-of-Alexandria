@@ -1,16 +1,17 @@
 package com.example.libraryofalexandria.Services;
 
-import com.example.libraryofalexandria.Models.Book;
-import com.example.libraryofalexandria.Models.Loan;
-import com.example.libraryofalexandria.Models.User;
-import com.example.libraryofalexandria.Repositories.LoanRepository;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
+import com.example.libraryofalexandria.DTO.UserDTO;
+import com.example.libraryofalexandria.Models.Book;
+import com.example.libraryofalexandria.Models.Loan;
+import com.example.libraryofalexandria.Repositories.LoanRepository;
 
 @Service
 public class LoanService {
@@ -21,7 +22,7 @@ public class LoanService {
         this.loanRepository = loanRepository;
     }
 
-    public Loan borrowBook(Book book, User user) {
+    public Loan borrowBook(Book book, UserDTO user) {
         if (book.getAvailable() == null || !book.getAvailable()) {
             throw new RuntimeException("The book is already borrowed");
         }
@@ -39,11 +40,11 @@ public class LoanService {
         return loan;
     }
 
-    public List<Loan> getActiveLoans(User user) {
+    public List<Loan> getActiveLoans(UserDTO user) {
         return loanRepository.findByUserAndReturnedDateIsNull(user);
     }
 
-    public Loan returnBook(Book book, User user) {
+    public Loan returnBook(Book book, UserDTO user) {
         Loan activeLoan = getActiveLoanByBookAndUser(book, user);
         activeLoan.setReturned(true);
         activeLoan.setReturnedDate(LocalDate.now());
@@ -53,20 +54,20 @@ public class LoanService {
         return activeLoan;
     }
 
-    public Loan getActiveLoanByBookAndUser(Book book, User user) {
+    public Loan getActiveLoanByBookAndUser(Book book, UserDTO user) {
         return getActiveLoans(user).stream()
                 .filter(loan -> loan.getBook().equals(book))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("No active loan found for this book and user"));
     }
 
-    public List<Book> getBorrowedBooks(User user) {
+    public List<Book> getBorrowedBooks(UserDTO user) {
         return getActiveLoans(user).stream()
                 .map(Loan::getBook)
                 .collect(Collectors.toList());
     }
 
-    public List<Map<String, Object>> getBorrowedBooksSummary(User user) {
+    public List<Map<String, Object>> getBorrowedBooksSummary(UserDTO user) {
         return getActiveLoans(user).stream()
                 .map(loan -> {
                     Map<String, Object> summary = new HashMap<>();

@@ -1,19 +1,24 @@
 package com.example.libraryofalexandria;
 
-import com.example.libraryofalexandria.Models.Book;
-import com.example.libraryofalexandria.Models.Loan;
-import com.example.libraryofalexandria.Models.User;
-import com.example.libraryofalexandria.Repositories.LoanRepository;
-import com.example.libraryofalexandria.Services.LoanService;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.MockitoAnnotations;
+
+import com.example.libraryofalexandria.DTO.UserDTO;
+import com.example.libraryofalexandria.Models.Book;
+import com.example.libraryofalexandria.Models.Loan;
+import com.example.libraryofalexandria.Repositories.LoanRepository;
+import com.example.libraryofalexandria.Services.LoanService;
 
 class LoanServiceUnitTest {
 
@@ -34,7 +39,7 @@ class LoanServiceUnitTest {
         book.setAvailable(true);
 
         // Mockar ny user1
-        User user = new User();
+        UserDTO user = new UserDTO();
         user.setId(1L);
         user.setFirstName("Mike");
         user.setLastName("Tyson");

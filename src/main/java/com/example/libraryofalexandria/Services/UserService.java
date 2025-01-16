@@ -1,14 +1,17 @@
 package com.example.libraryofalexandria.Services;
 
-import com.example.libraryofalexandria.Exceptions.ResourceNotFoundException;
-import com.example.libraryofalexandria.Models.User;
-import com.example.libraryofalexandria.Repositories.UserRepository;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import com.example.libraryofalexandria.DTO.UserDTO;
+import com.example.libraryofalexandria.Exceptions.ResourceNotFoundException;
+import com.example.libraryofalexandria.Models.User;
+import com.example.libraryofalexandria.Repositories.UserRepository;
 
 @Service
 public class UserService {
@@ -23,8 +26,10 @@ public class UserService {
   }
 
   // Hämta alla användare
-  public List<User> getAllUsers() {
-    return userRepository.findAll();
+  public List<UserDTO> getAllUsers() {
+    return userRepository.findAll().stream()
+      .map(this::convertToDTO)
+      .collect(Collectors.toList());  
   }
 
   // Skapa en ny användare
@@ -40,9 +45,10 @@ public class UserService {
   }
 
   // Hämta användare efter ID
-  public User getUserById(Long id) {
-    return userRepository.findById(id)
+  public UserDTO getUserById(Long id) {
+    User user = userRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+    return convertToDTO(user);
   }
 
   // Uppdatera en användare
@@ -71,6 +77,10 @@ public class UserService {
     User user = userRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
     userRepository.delete(user);
+  }
+
+  private UserDTO convertToDTO(User user) {
+    return new UserDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getMemberNumber());
   }
 
   // Validera lösenordets komplexitet

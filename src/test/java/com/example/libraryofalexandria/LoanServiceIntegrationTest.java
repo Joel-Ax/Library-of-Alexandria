@@ -1,5 +1,18 @@
 package com.example.libraryofalexandria;
 
+import java.time.LocalDate;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import com.example.libraryofalexandria.DTO.UserDTO;
 import com.example.libraryofalexandria.Models.Author;
 import com.example.libraryofalexandria.Models.Book;
 import com.example.libraryofalexandria.Models.Loan;
@@ -8,16 +21,8 @@ import com.example.libraryofalexandria.Repositories.BookRepository;
 import com.example.libraryofalexandria.Repositories.LoanRepository;
 import com.example.libraryofalexandria.Repositories.UserRepository;
 import com.example.libraryofalexandria.Services.LoanService;
+
 import jakarta.transaction.Transactional;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import java.time.LocalDate;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class LoanServiceIntegrationTest {
@@ -36,6 +41,7 @@ class LoanServiceIntegrationTest {
 
     private User user;
     private Book book;
+    private UserDTO userDTO;
 
     @Transactional
     @BeforeEach
@@ -60,7 +66,7 @@ class LoanServiceIntegrationTest {
 
         // Skapar nytt lån
         Loan loan = new Loan();
-        loan.setUser(user);
+        loan.setUser(userDTO);
         loan.setBook(book);
         loan.setDueDate(LocalDate.now().plusDays(14));
         loan.setReturned(false);
@@ -105,7 +111,7 @@ class LoanServiceIntegrationTest {
         bookRepository.save(unavailableBook);
 
         assertThrows(RuntimeException.class, () -> {
-            loanService.borrowBook(unavailableBook, user);
+            loanService.borrowBook(unavailableBook, userDTO);
         }, "Expected an exception because the book is not available for borrowing");
     }
 }

@@ -1,20 +1,20 @@
 package com.example.libraryofalexandria.Services;
 
-import com.example.libraryofalexandria.Exceptions.ResourceNotFoundException;
-import com.example.libraryofalexandria.Models.Admin;
-import com.example.libraryofalexandria.Repositories.AdminRepository;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.example.libraryofalexandria.DTO.AdminDTO;
+import com.example.libraryofalexandria.Exceptions.ResourceNotFoundException;
+import com.example.libraryofalexandria.Models.Admin;
+import com.example.libraryofalexandria.Repositories.AdminRepository;
 
 @Service
 public class AdminService {
@@ -76,8 +76,10 @@ public class AdminService {
     }
 
     // Hämta alla administratörer
-    public List<Admin> getAllAdmins() {
-        return adminRepository.findAll();
+    public List<AdminDTO> getAllAdmins() {
+        return adminRepository.findAll().stream()
+            .map(admin -> new AdminDTO(admin.getId(), admin.getUsername()))
+            .collect(Collectors.toList());
     }
 
     // Skapa admin
