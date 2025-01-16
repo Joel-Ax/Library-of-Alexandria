@@ -78,7 +78,7 @@ public class AdminService {
     // Hämta alla administratörer
     public List<AdminDTO> getAllAdmins() {
         return adminRepository.findAll().stream()
-            .map(admin -> new AdminDTO(admin.getId(), admin.getUsername()))
+            .map(admin -> new AdminDTO(admin.getId(), admin.getUsername(), admin.getRole()))
             .collect(Collectors.toList());
     }
 

@@ -14,5 +14,7 @@ public class AdminDTO {
 
     @Id
     private Long id;
+
     private String username;
+    private String role;
 }
