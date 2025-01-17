@@ -71,6 +71,7 @@ public class AuthenticationController {
       Optional<Admin> adminOptional = adminRepository.findByUsername(authenticationRequest.getUsername());
 
       // Om användaren finns, försök låsa upp kontot
+      // Mest för testning
       if (adminOptional.isPresent()) {
         Admin admin = adminOptional.get();
         adminService.unlockAccountIfNecessary(admin);

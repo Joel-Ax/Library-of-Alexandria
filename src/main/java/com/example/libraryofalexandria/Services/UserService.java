@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,9 +21,9 @@ public class UserService {
   private final PasswordEncoder passwordEncoder;
 
   // Konstruktor som injicerar UserRepository och PasswordEncoder
-  public UserService(UserRepository userRepository) {
+  public UserService(UserRepository userRepository, @Lazy PasswordEncoder passwordEncoder) {
     this.userRepository = userRepository;
-    this.passwordEncoder = new BCryptPasswordEncoder(); // Skapar en instans av BCryptPasswordEncoder
+    this.passwordEncoder = passwordEncoder; // Skapar en instans av BCryptPasswordEncoder
   }
 
   // Hämta alla användare
